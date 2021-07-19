@@ -15,17 +15,17 @@ public class BoardServiceImpl implements BoardService {
 	private Connection conn = Dao.getConnection();
 	private PreparedStatement psmt;
 	private ResultSet rs;
-	
+
 	@Override
 	public List<BoardVO> boardSelectList() {
 		// TODO 게시판 목록.
 		List<BoardVO> list = new ArrayList<BoardVO>();
-		BoardVO vo; //한개를 담을 수 있는 객체.
+		BoardVO vo; // 한개를 담을 수 있는 객체.
 		String sql = "select * from board";
 		try {
 			psmt = conn.prepareStatement(sql);
 			rs = psmt.executeQuery();
-			while(rs.next()) {
+			while (rs.next()) {
 				vo = new BoardVO();
 				vo.setBoardId(rs.getString("boardid"));
 				vo.setWriter(rs.getString("writer"));
@@ -34,7 +34,7 @@ public class BoardServiceImpl implements BoardService {
 				vo.setHit(rs.getInt("hit"));
 				list.add(vo);
 			}
-		}catch(SQLException e) {
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return list;
@@ -48,16 +48,16 @@ public class BoardServiceImpl implements BoardService {
 			psmt = conn.prepareStatement(sql);
 			psmt.setString(1, vo.getBoardId());
 			rs = psmt.executeQuery();
-			if(rs.next()) {
+			if (rs.next()) {
 				vo.setBoardId(rs.getString("boardid"));
 				vo.setWriter(rs.getString("writer"));
 				vo.setTitle(rs.getString("title"));
 				vo.setSubject(rs.getString("subject"));
 				vo.setEnterDate(rs.getDate("enterdate"));
-				vo.setHit(rs.getInt("hit"));	
-				updateHit(vo.getBoardId()); //조회수 증가시키는 메소드 호출.
+				vo.setHit(rs.getInt("hit"));
+				updateHit(vo.getBoardId()); // 조회수 증가시키는 메소드 호출.
 			}
-		}catch(SQLException e) {
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return vo;
@@ -65,32 +65,63 @@ public class BoardServiceImpl implements BoardService {
 
 	private void updateHit(String boardId) {
 		// TODO 조회수 증가.
-		String sql = "update board set hit = hit + 1 where id = ?";
+		String sql = "update board set hit = hit + 1 where boardid = ?";
 		try {
 			psmt = conn.prepareStatement(sql);
 			psmt.setString(1, boardId);
 			psmt.executeUpdate();
-		}catch(SQLException e) {
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
 
 	@Override
 	public int boardInsert(BoardVO vo) {
-		// TODO Auto-generated method stub
-		return 0;
+		// TODO 게시글 쓰기
+		int n = 0;
+		String sql = "insert into board(boardid,writer,title,subject) values (?,?,?,?)";
+		try {
+			psmt = conn.prepareStatement(sql);
+			psmt.setString(1, vo.getBoardId());
+			psmt.setString(2, vo.getWriter());
+			psmt.setString(3, vo.getTitle());
+			psmt.setString(4, vo.getSubject());
+			n = psmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return n;
 	}
 
 	@Override
 	public int boardDelete(BoardVO vo) {
-		// TODO Auto-generated method stub
-		return 0;
+		// TODO 게시글 삭제
+		int n = 0;
+		String sql = "delete from board where boardid = ?";
+		try {
+			psmt = conn.prepareStatement(sql);
+			psmt.setString(1, vo.getBoardId());
+			n = psmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return n;
 	}
 
 	@Override
 	public int boardUpdate(BoardVO vo) {
-		// TODO Auto-generated method stub
-		return 0;
+		// TODO 게시글 수정(내용만)
+		int n = 0;
+		String sql = "update board set subject = ? where boardid = ?";
+		try {
+			psmt = conn.prepareStatement(sql);
+			psmt.setString(1, vo.getSubject());
+			psmt.setString(2, vo.getBoardId());
+			n = psmt.executeUpdate();
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
+		return n;
 	}
 
 }

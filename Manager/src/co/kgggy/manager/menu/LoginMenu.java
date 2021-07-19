@@ -63,7 +63,6 @@ public class LoginMenu {
 				user.run(vo);
 			}
 		}
-
 		sc.close();
 	}
 }
